@@ -28,9 +28,14 @@ public class OperationService implements InventarioIn {
     @Override
     public Mono<Extrato> saidaInventario(final OperacaoInventarioModel model) {
         return extratoRepository.findFirstByCodeOrderByMovDesc(model.getCode())
-                .flatMap(e -> {
-                    var extrato = Extrato.exit(model.getQtdeSaida(), e);
-                    return extratoRepository.save(extrato);
-                }).switchIfEmpty(Mono.defer(() -> Mono.error(new RuntimeException("Extrato not found: " + model.getCode()))));
+                .map(e -> {
+                    if (e.getSaldo() < model.getQtdeSaida()) {
+                        throw new RuntimeException("Stock insufficient. Stock: " + model.getQtdeSaida() + ", operation: " + e.getSaldo());
+                    }
+
+                    return Extrato.exit(model.getQtdeSaida(), e);
+                })
+                .flatMap(e -> extratoRepository.save(e))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new RuntimeException("Extrato not found: " + model.getCode()))));
     }
 }
