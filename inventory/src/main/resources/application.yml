@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: inventory-service
+  cloud:
+    stream:
+      bindings:
+        entrada-in-0:
+          group: '${spring.application.name}'
+          content-type: application/json
+          destination: inventory-group
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+    listener:
+      missing-topics-fatal: false
