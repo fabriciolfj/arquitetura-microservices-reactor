@@ -19,10 +19,12 @@ public abstract class OperationInventarioDecorate implements OperacaoInventarioM
         var type = OperationType.toEnum(request.getType());
 
         if (type.equals(OperationType.ENTRANCE)) {
+            operation.setQtdeSaida(0);
             operation.setQtdeEntrada(request.getQtde());
             return operation;
         }
 
+        operation.setQtdeEntrada(0);
         operation.setQtdeSaida(request.getQtde());
         return operation;
     }

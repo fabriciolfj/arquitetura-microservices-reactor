@@ -3,7 +3,6 @@ package com.github.fabriciolfj.product.adapters.api.controller;
 import com.github.fabriciolfj.product.adapters.api.dto.ProductRequest;
 import com.github.fabriciolfj.product.adapters.api.dto.ProductResponse;
 import com.github.fabriciolfj.product.adapters.api.mappers.ProductMapper;
-import com.github.fabriciolfj.product.adapters.facade.OperationCreate;
 import com.github.fabriciolfj.product.domain.port.in.ProductIn;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ public class ProductController {
 
     private final ProductIn productOut;
     private final ProductMapper mapper;
-    private final OperationCreate operationModelCreate;
 
     @GetMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
