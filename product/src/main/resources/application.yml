@@ -1,14 +1,14 @@
+
+server:
+  port: 9090
 spring:
   application:
-    name: inventory-service
+    name: product-service
   cloud:
     stream:
       bindings:
-        operation-in-0:
+        inventory-in-0:
           group: '${spring.application.name}'
-          content-type: application/json
-          destination: operation-group
-        operation-out-0:
           content-type: application/json
           destination: inventory-group
   data:
@@ -21,3 +21,5 @@ spring:
       auto-offset-reset: earliest
     listener:
       missing-topics-fatal: false
+inventary:
+  host: http://localhost:8080
