@@ -15,29 +15,15 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class OperationService implements OperationIn {
 
-    private final ProductService productService;
-    private final OperationOut operationOut;
+    private final SendMessageService sendMessageService;
 
     @Override
     public Mono<Void> addInventory(final ProductOperationModel model) {
-        return invokeStream(model, OperationType.ENTRANCE);
+        return sendMessageService.invokeStream(model, OperationType.ENTRANCE);
     }
 
     @Override
     public Mono<Void> exitInventory(final ProductOperationModel model) {
-        return invokeStream(model, OperationType.EXIT);
-    }
-
-    private Mono<Void> invokeStream(final ProductOperationModel model, final OperationType type) {
-        return productService.findByCode(model.getCode())
-                .flatMap(p -> {
-                    log.info("Product found: {}", p.toString());
-                    return operationOut.send(p.getCode(), model.getQtde(), type);
-                })
-                .onErrorResume(e->
-                        Mono.defer(() ->
-                                Mono.error(new OperationException("Operation failed. Details: " + e.getMessage()))
-                        )
-                ).log();
+        return sendMessageService.invokeStream(model, OperationType.EXIT);
     }
 }
