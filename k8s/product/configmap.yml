@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-product
+data:
+  application.yml: |-
+                    server:
+                      port: 8080
+                    spring:
+                      application:
+                        name: product-service
+                      cloud:
+                        stream:
+                          bindings:
+                            inventory-in-0:
+                              group: '${spring.application.name}'
+                              content-type: application/json
+                              destination: inventory-group
+                      data:
+                        mongodb:
+                          database: test
+                          host: my-release-mongodb
+                          port: 27017
+                          username: admin
+                          password: admin
+                      kafka:
+                        bootstrap-servers: kafka:9092
+                        consumer:
+                          auto-offset-reset: earliest
+                        listener:
+                          missing-topics-fatal: false
+                    management:
+                      endpoints:
+                        web:
+                          exposure:
+                            include: "*"
+                      metrics:
+                        export:
+                          prometheus:
+                            enabled: true
+                      endpoint:
+                        metrics:
+                          enabled: false
+                        prometheus:
+                          enabled: true                          

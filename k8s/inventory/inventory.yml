@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory
+  template:
+    metadata:
+      labels:
+        app: inventory
+    spec:
+      containers:
+        - name: inventory
+          image: fabricio211/inventory-reactive:0.0.1-SNAPSHOT
+          imagePullPolicy: Always
+          env:
+            - name: SPRING_CONFIG_LOCATION
+              value: file:/etc/config/application.yml
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 800Mi
+              cpu: "300m"
+            limits:
+               memory: 800Mi
+               cpu: "300m"
+          livenessProbe:
+            httpGet:
+              port: 8080
+              scheme: HTTP
+              path: /actuator/info
+            initialDelaySeconds: 10
+            periodSeconds: 40
+            timeoutSeconds: 2
+            failureThreshold: 30
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+          volumeMounts:
+            - mountPath: /etc/config
+              name: config-inventory
+      volumes:
+        - name: config-inventory
+          configMap:
+            name: config-inventory
+            items:
+              - key: application.yml
+                path: application.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory
+  labels:
+    app: inventory
+    spring-boot: "true"
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: inventory

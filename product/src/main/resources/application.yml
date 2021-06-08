@@ -1,5 +1,4 @@
-
-server:
+.server:
   port: 9090
 spring:
   application:
@@ -23,3 +22,18 @@ spring:
       missing-topics-fatal: false
 inventary:
   host: http://localhost:8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  endpoint:
+    metrics:
+      enabled: false
+    prometheus:
+      enabled: true
