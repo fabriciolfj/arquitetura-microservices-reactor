@@ -25,6 +25,7 @@ public class OperationMessage {
     private final OperacaoInventarioModelMapper modelMapper;
     private final InventarioIn in;
 
+    //migrar para o reactor
     @Bean
     public Function<OperationMsgRequest, OperationMsgResponse> operation() {
         return value -> process(value);

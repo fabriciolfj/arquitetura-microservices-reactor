@@ -8,5 +8,5 @@ public interface ProductIn {
 
     Mono<Product> findByCode(final String id);
     Flux<Product> getAll();
-    Mono<Product> create(final Product product);
+    Mono<?> create(final Product product);
 }

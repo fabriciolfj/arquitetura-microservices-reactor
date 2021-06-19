@@ -1,6 +1,7 @@
 package com.github.fabriciolfj.product.domain.service;
 
 import com.github.fabriciolfj.product.domain.document.Product;
+import com.github.fabriciolfj.product.domain.exceptions.OperationException;
 import com.github.fabriciolfj.product.domain.exceptions.ProductNotFoundException;
 import com.github.fabriciolfj.product.domain.port.in.ProductIn;
 import com.github.fabriciolfj.product.domain.repository.ProductRepository;
@@ -33,7 +34,9 @@ public class ProductService implements ProductIn {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Mono<Product> create(final Product product) {
-        return productRepository.save(product);
+    public Mono<?> create(final Product product) {
+        return productRepository.findByCode(product.getCode())
+                .flatMap(p -> Mono.error(new OperationException("Code exists: " + p.getCode())))
+                .switchIfEmpty(Mono.defer(() -> productRepository.save(product)));
     }
 }
