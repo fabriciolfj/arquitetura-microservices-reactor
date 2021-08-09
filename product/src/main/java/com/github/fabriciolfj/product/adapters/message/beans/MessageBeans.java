@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.function.Consumer;
 
@@ -26,7 +27,7 @@ public class MessageBeans {
                   .flatMap(prod -> {
                       prod.setBalance(value.getBalance());
                       return productIn.create(prod);
-                  }).subscribe(prod -> log.info("Product update: {}", prod));
+                  }).subscribeOn(Schedulers.boundedElastic());
       };
     }
 }
