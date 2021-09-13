@@ -25,13 +25,12 @@ public class OperationMessage {
     private final OperacaoInventarioModelMapper modelMapper;
     private final InventarioIn in;
 
-    //migrar para o reactor
     @Bean
-    public Function<OperationMsgRequest, OperationMsgResponse> operation() {
+    public Function<OperationMsgRequest, Mono<OperationMsgResponse>> operation() {
         return value -> process(value);
     }
 
-    private OperationMsgResponse process(final OperationMsgRequest request) {
+    private Mono<OperationMsgResponse> process(final OperationMsgRequest request) {
         log.info("Add {}", request.toString());
         final var model = modelMapper.toModel(request);
         return of(model)
@@ -40,7 +39,7 @@ public class OperationMessage {
                 .orElseGet(() ->  processExit(model));
     }
 
-    private OperationMsgResponse processExit(final OperacaoInventarioModel model) {
+    private Mono<OperationMsgResponse> processExit(final OperacaoInventarioModel model) {
         return in.saidaInventario(model)
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnSuccess(e -> log.info("processo success {}", e))
@@ -50,15 +49,15 @@ public class OperationMessage {
                         .balance(-1)
                         .code(model.getCode())
                         .build()))
-                .block();
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
-    private OperationMsgResponse processAdd(final OperacaoInventarioModel model) {
+    private Mono<OperationMsgResponse> processAdd(final OperacaoInventarioModel model) {
         return in.addInventario(model)
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnSuccess(e -> log.info("processo success {}", e))
                 .doOnError(e -> log.error("processor error {}", e.getMessage()))
                 .map(result -> modelMapper.toResponse(result))
-                .block();
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }
