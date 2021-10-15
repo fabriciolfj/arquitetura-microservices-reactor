@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,9 @@ public class ExtratoService implements InventarioOut {
 
     @Override
     public Flux<Extrato> getInventarios() {
-        return extratoRepository.findAll();
+        return extratoRepository.findAll()
+                .onBackpressureBuffer(100)
+                .publishOn(Schedulers.boundedElastic());
     }
 
     @Override
